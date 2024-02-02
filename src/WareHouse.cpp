@@ -383,6 +383,7 @@ void WareHouse::InputFromFile(const string& configFilePath){            //      
 
 		///   no need to delete the vectors because they are on the stack as well as their interior variables
     }
+
 	file.close();
 
 }

@@ -67,8 +67,8 @@ void SimulateStep::act(WareHouse& wareHouse){
         // for(Order* pendingOrder : wareHouse.getPendingOrders()){  // taking care of the orders in the pendingorders vector((before collecting) or (after collecting and before delivering), checkkkkkkkkkkkkkkkkk)
         // for(int i=0; i< int(wareHouse.getPendingOrders().size()); i++){
         // for(int i=0; (i>=0 && (size_t)i<wareHouse.getPendingOrders().size()); i++){
-        // for(auto iter = wareHouse.getPendingOrders().begin(); iter != wareHouse.getPendingOrders().end();){  // <<<<<=======================  with iterator
-        for(auto iter = wareHouse.getPendingOrders().rbegin(); iter != wareHouse.getPendingOrders().rend();){  // <<<<<=======================  with reverse iterator
+        for(auto iter = wareHouse.getPendingOrders().begin(); iter != wareHouse.getPendingOrders().end();){  // <<<<<=======================  with iterator
+        // for(auto iter = wareHouse.getPendingOrders().rbegin(); iter != wareHouse.getPendingOrders().rend();){  // <<<<<=======================  with reverse iterator
             Order* order = *iter;
             // go over all the collectors and see who is available   <<<============
             // if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING && wareHouse.getPendingOrders().at(i)->getCollectorId() == NO_VOLUNTEER){  // assigning a new order to a collector. move orders between vectors accordingly, when finished.
@@ -81,9 +81,9 @@ void SimulateStep::act(WareHouse& wareHouse){
                         (*iter)->setStatus(OrderStatus::COLLECTING);
                         wareHouse.addOrder((*iter)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
                         // wareHouse.getPendingOrders().erase(wareHouse.getPendingOrders().begin() + pendOrd_index); // remove because the order moved to the inprocessorders vector
-                        delete *iter;
-                        // iter = wareHouse.getPendingOrders().erase(iter);  // iterator
-                        iter = vector<Order*>::reverse_iterator(wareHouse.getPendingOrders().erase(next(iter).base()));   // reverse iterator
+                        // delete *iter;
+                        iter = wareHouse.getPendingOrders().erase(iter);  // iterator
+                        // iter = vector<Order*>::reverse_iterator(wareHouse.getPendingOrders().erase(next(iter).base()));   // reverse iterator
                         
                         //
                     } // now gave the new order to a collector if a collector is free
@@ -98,9 +98,9 @@ void SimulateStep::act(WareHouse& wareHouse){
                         (*iter)->setStatus(OrderStatus::DELIVERING);
                         wareHouse.addOrder((*iter)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
                         // wareHouse.getPendingOrders().erase(wareHouse.getPendingOrders().begin() + pendOrd_index); // remove because the order moved to the inprocessorders vector
-                        delete *iter;
-                        // iter = wareHouse.getPendingOrders().erase(iter);  // iterator
-                        iter = vector<Order*>::reverse_iterator(wareHouse.getPendingOrders().erase(next(iter).base()));   // reverse iterator
+                        // delete *iter;
+                        iter = wareHouse.getPendingOrders().erase(iter);  // iterator
+                        // iter = vector<Order*>::reverse_iterator(wareHouse.getPendingOrders().erase(next(iter).base()));   // reverse iterator
                         
                         //
                     } // now gave the already collected order to a driver if a driver is free
@@ -111,8 +111,9 @@ void SimulateStep::act(WareHouse& wareHouse){
             }
         }
 
-
         cout << "after pendings";   //  <<<<<<================================  test
+
+        // auto delete_iter = remove_if(wareHouse.getPendingOrders().begin(), wareHouse.getPendingOrders().end(), (element)->(element == nullptr));   <<<<=========================  try  <<<====
 
 
 
