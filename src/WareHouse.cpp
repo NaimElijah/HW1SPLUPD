@@ -3,6 +3,7 @@
 #include <fstream>
 #include <bits/stdc++.h>
 #include <string>
+#include "../include/Order.h"
 using namespace std;
 
 WareHouse::WareHouse(const string& configFilePath):isOpen(false), backedUp(false), actionsLog(), pendingOrders(), inProcessOrders(), completedOrders(), volunteers(), customers(),
@@ -183,37 +184,44 @@ WareHouse& WareHouse::operator=(WareHouse&& other) noexcept {   //   move assign
 		ordersCounter = other.getOrdersCounter();
 		other.setOrdersCounter(0);
     	notfV = other.getNotfV().clone();  // even though they have the same one, just because
+		delete other.notfV;
 		other.notfV = nullptr;
 		backedUp = other.getBackedUp();
 		other.backedUp = false;
 
 	 	for (Action* ac : other.getActions()) {   ///   assignment to the lvalue(this) and nullptr'ing the rvalue(the other)
         	actionsLog.push_back(ac->clone());
+			delete ac;
        		ac = nullptr;
     	}
 		
 		for (Volunteer* vol : other.getVolunteers()) {
         	volunteers.push_back(vol->clone());
+			delete vol;
        		vol = nullptr;
     	}
 
 		for (Customer* cus : other.getCustomers()) {
-        	customers.push_back(cus->clone());             //                    check in nir's ps if we should delete or only = nullptr it.   <<<<<============================
-        	cus = nullptr;
+        	customers.push_back(cus->clone());
+        	delete cus;
+			cus = nullptr;
     	}
 
     	for (Order* ord : other.getInProcessOrders()) {
         	inProcessOrders.push_back(ord->clone());
+			delete ord;
        		ord = nullptr;
     	}
 
     	for (Order* ord : other.getPendingOrders()) {
         	pendingOrders.push_back(ord->clone());
+			delete ord;
        		ord = nullptr;
     	}
     	
     	for (Order* ord : other.getCompletedOrders()) {
         	completedOrders.push_back(ord->clone());
+			delete ord;
        		ord = nullptr;
     	}
 
@@ -244,37 +252,44 @@ WareHouse::WareHouse(WareHouse&& other) noexcept: isOpen(other.isOpen), backedUp
 	other.setCustomerCounter(0);
 	other.setVolunteerCounter(0);
 	other.setOrdersCounter(0);
+	delete other.notfV;
 	other.notfV = nullptr;
 	other.backedUp = false;
 	
 
 	for (Action* ac : other.getActions()) {   ///   assignment to the lvalue(this) and nullptr'ing the rvalue(the other)
         actionsLog.push_back(ac->clone());
+		delete ac;
        	ac = nullptr;
     }
 		
 	for (Volunteer* vol : other.getVolunteers()) {
         volunteers.push_back(vol->clone());
+		delete vol;
        	vol = nullptr;
     }
 
 	for (Customer* cus : other.getCustomers()) {
         customers.push_back(cus->clone());
+		delete cus;
         cus = nullptr;
     }
 
     for (Order* ord : other.getInProcessOrders()) {
         inProcessOrders.push_back(ord->clone());
+		delete ord;
        	ord = nullptr;
     }
 
     for (Order* ord : other.getPendingOrders()) {
         pendingOrders.push_back(ord->clone());
+		delete ord;
        	ord = nullptr;
     }
     	
     for (Order* ord : other.getCompletedOrders()) {
         completedOrders.push_back(ord->clone());
+		delete ord;
        	ord = nullptr;
     }
 
@@ -330,7 +345,7 @@ WareHouse::~WareHouse(){     ///  Destructor
 	}
 	volunteers.clear();
 
-	delete notfV;
+	delete notfV;   //   check if we need to nullptr these
 	// we don't need to delete the backup, according to nir the backup survives even after the WareHouse is destroyed and then it's destroyed in the main
 }
 
@@ -386,6 +401,10 @@ void WareHouse::InputFromFile(const string& configFilePath){            //      
 
 	file.close();
 
+	cout << this->customers.size();   //   <<<===================  test
+	cout << this->volunteers.size();   //   <<<===================  test
+	cout << this->pendingOrders.size();   //   <<<===================  test
+
 }
 
 
@@ -420,6 +439,9 @@ void WareHouse::start(){
 			actionsLog.push_back(step);
 
 		}else if(input_parts.at(0) == "order"){
+			Order* testOrder = new Order(0, 0, 5);  //   <<<<<<<<<<<===========================================  testing
+			testOrder->setStatus(OrderStatus::PENDING);
+			this->addOrder(testOrder);  //   <<<<<<<<<<<===========================================  testing
 			AddOrder* o = new AddOrder(stoi(input_parts.at(1)));
 			o->act(*(this));
 			actionsLog.push_back(o);
@@ -478,6 +500,9 @@ Volunteer& WareHouse::getNotfV() const{
 }
 
 int WareHouse::getCustomerCounter() const{
+	// cout << to_string(customerCounter) + " <==";
+	// cout << to_string(volunteerCounter) + " <==";          //  just testing
+	// cout << to_string(ordersCounter) + " <==";
 	return customerCounter;
 }
 void WareHouse::setCustomerCounter(int i){

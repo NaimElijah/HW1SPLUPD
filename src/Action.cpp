@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 ///               Action Class      <=================================================
@@ -59,105 +60,149 @@ SimulateStep::SimulateStep(int numOfSteps): numOfSteps(numOfSteps){};
 
 void SimulateStep::act(WareHouse& wareHouse){
     int pos_v;
-    cout << "before before pendings";   //  <<<<<<================================  test
-    for(int j=1; j<=numOfSteps; j++){
-        cout << "before pendings";  //   <<<<<<================================  test
+    cout << " beforebeforependings ";   //  <<<<<<================================  test
+    cout << wareHouse.getCustomers().size();   //   <<<===================  test
+    cout << wareHouse.getVolunteers().size();   //   <<<===================  test
+	cout << wareHouse.getPendingOrders().size();   //   <<<===================  test
+    for(int j=1; j <= numOfSteps; j = j+1){
+        cout << " beforependings ";  //   <<<<<<================================  test
+        cout << wareHouse.getCustomers().size();   //   <<<===================  test
+	    cout << wareHouse.getVolunteers().size();   //   <<<===================  test
+	    cout << wareHouse.getPendingOrders().size();   //   <<<===================  test
+        if(wareHouse.getPendingOrders().size() > 0){
+            int pendOrd_index = 0;
+            for(Order* pendingOrder : wareHouse.getPendingOrders()){  // taking care of the orders in the pendingorders vector((before collecting) or (after collecting and before delivering), checkkkkkkkkkkkkkkkkk)
+        //         // for(int i=0; i< int(wareHouse.getPendingOrders().size()); i++){
+        //         // for(int i=0; (i>=0 && (size_t)i<wareHouse.getPendingOrders().size()); i++){
+        //         // for(auto iter = wareHouse.getPendingOrders().begin(); iter != wareHouse.getPendingOrders().end();){  // <<<<<=======================  with iterator
+        //         // for(auto iter = wareHouse.getPendingOrders().rbegin(); iter != wareHouse.getPendingOrders().rend();){  // <<<<<=======================  with reverse iterator
+        //         // Order* order = *iter;
+                // go over all the collectors and see who is available   <<<============
+        //         // if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING && wareHouse.getPendingOrders().at(i)->getCollectorId() == NO_VOLUNTEER){  // assigning a new order to a collector. move orders between vectors accordingly, when finished.
+                if(pendingOrder->getStatus() == OrderStatus::PENDING && pendingOrder->getCollectorId() == NO_VOLUNTEER){  // <<<<<<=================================  with iterator
+                    for(Volunteer* vol : wareHouse.getVolunteers()){
+                        if(vol->get_vol_identifier() == "c" && vol->canTakeOrder(*(pendingOrder))){
+                            pendingOrder->setCollectorId(vol->getId());
+        //                     // cout << (*iter)->toString();     //        <<<<<===================  test
+                            vol->acceptOrder(*(pendingOrder));   ///    do a clone to Order and add a clone when giving it to the next place and delete the old
+                            pendingOrder->setStatus(OrderStatus::COLLECTING);
+                            wareHouse.addOrder(pendingOrder->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
+                            
+                            delete pendingOrder;
+                            // wareHouse.getPendingOrders().erase(wareHouse.getPendingOrders().begin() + pendOrd_index); // remove because the order moved to the inprocessorders vector
+        //                     // delete *iter;
+        //                     // iter = wareHouse.getPendingOrders().erase(iter);  // iterator
+        //                     // iter = vector<Order*>::reverse_iterator(wareHouse.getPendingOrders().erase(next(iter).base()));   // reverse iterator
+                            // pendingOrder = nullptr;   <<<<<<<<<===============================================  this gives a segmentation fault right now !!!!!!
 
-        // int pendOrd_index = 0;
-        // for(Order* pendingOrder : wareHouse.getPendingOrders()){  // taking care of the orders in the pendingorders vector((before collecting) or (after collecting and before delivering), checkkkkkkkkkkkkkkkkk)
-        // for(int i=0; i< int(wareHouse.getPendingOrders().size()); i++){
-        // for(int i=0; (i>=0 && (size_t)i<wareHouse.getPendingOrders().size()); i++){
-        for(auto iter = wareHouse.getPendingOrders().begin(); iter != wareHouse.getPendingOrders().end();){  // <<<<<=======================  with iterator
-        // for(auto iter = wareHouse.getPendingOrders().rbegin(); iter != wareHouse.getPendingOrders().rend();){  // <<<<<=======================  with reverse iterator
-            Order* order = *iter;
-            // go over all the collectors and see who is available   <<<============
-            // if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING && wareHouse.getPendingOrders().at(i)->getCollectorId() == NO_VOLUNTEER){  // assigning a new order to a collector. move orders between vectors accordingly, when finished.
-            if((*iter)->getStatus() == OrderStatus::PENDING && (*iter)->getCollectorId() == NO_VOLUNTEER){  // <<<<<<=================================  with iterator
-                for(Volunteer* vol : wareHouse.getVolunteers()){
-                    if(vol->get_vol_identifier() == "c" && vol->canTakeOrder(*(order))){
-                        (*iter)->setCollectorId(vol->getId());
-                        // cout << (*iter)->toString();     //        <<<<<===================  test
-                        vol->acceptOrder(*(order));   ///    do a clone to Order and add a clone when giving it to the next place and delete the old
-                        (*iter)->setStatus(OrderStatus::COLLECTING);
-                        wareHouse.addOrder((*iter)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
-                        // wareHouse.getPendingOrders().erase(wareHouse.getPendingOrders().begin() + pendOrd_index); // remove because the order moved to the inprocessorders vector
-                        // delete *iter;
-                        iter = wareHouse.getPendingOrders().erase(iter);  // iterator
-                        // iter = vector<Order*>::reverse_iterator(wareHouse.getPendingOrders().erase(next(iter).base()));   // reverse iterator
-                        
-                        //
-                    } // now gave the new order to a collector if a collector is free
-                }
-
-            // }else if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING){  // assigning an order that has been processed by a collector, to a driver. move orders between vectors accordingly, when finished.
-            }else if((*iter)->getStatus() == OrderStatus::PENDING){  // <<<<<============================  with iterator
-                for(Volunteer* vol : wareHouse.getVolunteers()){
-                    if(vol->get_vol_identifier() == "d" && vol->canTakeOrder(*(order))){
-                        (*iter)->setDriverId(vol->getId());
-                        vol->acceptOrder(*(order));
-                        (*iter)->setStatus(OrderStatus::DELIVERING);
-                        wareHouse.addOrder((*iter)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
-                        // wareHouse.getPendingOrders().erase(wareHouse.getPendingOrders().begin() + pendOrd_index); // remove because the order moved to the inprocessorders vector
-                        // delete *iter;
-                        iter = wareHouse.getPendingOrders().erase(iter);  // iterator
-                        // iter = vector<Order*>::reverse_iterator(wareHouse.getPendingOrders().erase(next(iter).base()));   // reverse iterator
-                        
-                        //
-                    } // now gave the already collected order to a driver if a driver is free
-                }
-            }else{
-                // pendOrd_index ++;   //  pendOrd_index not really needed, because all the orders need a collector orr a driver
-                ++iter;
-            }
-        }
-
-        cout << "after pendings";   //  <<<<<<================================  test
-
-        // auto delete_iter = remove_if(wareHouse.getPendingOrders().begin(), wareHouse.getPendingOrders().end(), (element)->(element == nullptr));   <<<<=========================  try  <<<====
-
-
-
-        ///  also take care of moving orders from one vector to another   <<<============
-        pos_v = 0;
-        int in_proc_Ord_index;
-        for(Volunteer* volunteer : wareHouse.getVolunteers()){
-            if(volunteer->isBusy()){  // doing the step is relavent only if he is given a task
-                volunteer->step();
-            }
-
-            if(volunteer->isBusy() == false && volunteer->getCompletedOrderId()!=NO_ORDER){  // if the volunteer finished his task
-                Order* o = new Order(wareHouse.getOrder(volunteer->getCompletedOrderId()));  // using default copy constructor, this is the order the volunteer just finished processing
-                if(volunteer->get_vol_identifier() == "c"){
-                    o->setStatus(OrderStatus::PENDING); // from what nir said it should be in pending again because it's waiting for a driver to pick it up
-                    // then move the order to the relavent vector
-                }else if(volunteer->get_vol_identifier() == "d"){
-                    o->setStatus(OrderStatus::COMPLETED);
-                }
-                wareHouse.addOrder(o); // adding to pendingorders/completedorders(depends on the status we changed to) now
-
-                in_proc_Ord_index = 0;
-                for(Order* ord: wareHouse.getInProcessOrders()){  // delete copied order and erase it's place
-                    if(ord->getId() == o->getId()){
-                        delete ord;  // might need to delete this  <<<<================================
-                        wareHouse.getInProcessOrders().erase(wareHouse.getInProcessOrders().begin() + in_proc_Ord_index); // remove because the order moved to the pending/completedorders vector
-                        break; // there's only one order with that order id so let's save time
-                    }else{
-                        in_proc_Ord_index ++;
+                            
+                        } // now gave the new order to a collector if a collector is free
                     }
+
+        //         // }else if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING){  // assigning an order that has been processed by a collector, to a driver. move orders between vectors accordingly, when finished.
+                }else if(pendingOrder->getStatus() == OrderStatus::PENDING){  // <<<<<============================  with iterator
+                    for(Volunteer* vol : wareHouse.getVolunteers()){
+                        if(vol->get_vol_identifier() == "d" && vol->canTakeOrder(*(pendingOrder))){
+                            pendingOrder->setDriverId(vol->getId());
+                            vol->acceptOrder(*(pendingOrder));
+                            pendingOrder->setStatus(OrderStatus::DELIVERING);
+                            wareHouse.addOrder(pendingOrder->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
+        //                     // wareHouse.getPendingOrders().erase(wareHouse.getPendingOrders().begin() + pendOrd_index); // remove because the order moved to the inprocessorders vector
+        //                     // delete *iter;
+        //                     // iter = wareHouse.getPendingOrders().erase(iter);  // iterator
+        //                     // iter = vector<Order*>::reverse_iterator(wareHouse.getPendingOrders().erase(next(iter).base()));   // reverse iterator
+                            delete pendingOrder;
+        //                     pendingOrder = nullptr;   <<<<<<<<<===============================================  this gives a segmentation fault right now !!!!!!
+                            
+        //                     //
+                        } // now gave the already collected order to a driver if a driver is free
+                    }
+                }else{
+                    pendOrd_index ++;
+        //             // ++iter;
                 }
-
-                volunteer->setCompletedOrderId(NO_ORDER);  // change the completedOrderId of the volunteer back to NO_ORDER
             }
 
+            // cout << " pendordssizebeshr ";
+            // cout << wareHouse.getPendingOrders().size();    //  <<<<===================  test
+            wareHouse.getPendingOrders().shrink_to_fit();
+            // cout << wareHouse.getPendingOrders().size();    //  <<<<===================  test
+            // cout << " pendordssizeafshr ";
 
-            if(volunteer->hasOrdersLeft() == false && volunteer->isBusy() == false){   //  check which limited volunteers have finished and reached their max and delete them   <<<============
-                delete volunteer;  // might need to delete this  <<<<================================
-                wareHouse.getVolunteers().erase(wareHouse.getVolunteers().begin() + pos_v);  //  delete and organize the vector(vector volunteers)
-            }else{
-                pos_v ++;
-            }
+        //     cout << " after pendings ";   //  <<<<<<================================  test
+
+        //     // int k=0;
+        //     // while(wareHouse.getPendingOrders().at(k) == nullptr){
+        //     //     wareHouse.getPendingOrders().erase(wareHouse.getPendingOrders().begin() + k);
+        //     //     k++;
+        //     // }
+
+            
+        //     for(int h=0; h < static_cast<int>(wareHouse.getPendingOrders().size()); h++){
+        //         if(wareHouse.getPendingOrders().at(h) != Order*){                                                                      # important #
+        //             wareHouse.getPendingOrders().erase(wareHouse.getPendingOrders().begin() + h); /// maybe if this gives a segmentation fault, remove instead of erase and then shrink
+        //             h--;
+        //         }
+            // }
 
         }
+
+
+
+
+
+
+
+
+        if(wareHouse.getVolunteers().size() > 0){
+            //  also take care of moving orders from one vector to another   <<<============
+            pos_v = 0;
+            int in_proc_Ord_index;
+            for(Volunteer* volunteer : wareHouse.getVolunteers()){
+                if(volunteer->isBusy()){  // doing the step is relavent only if he is given a task
+                    volunteer->step();
+                }
+
+                if((volunteer->isBusy() == false) && (volunteer->getCompletedOrderId()!= NO_ORDER)){  // if the volunteer finished his task
+                    Order* o = new Order(wareHouse.getOrder(volunteer->getCompletedOrderId()));  // using default copy constructor, this is the order the volunteer just finished processing
+                    if(volunteer->get_vol_identifier() == "c"){
+                        o->setStatus(OrderStatus::PENDING); // from what nir said it should be in pending again because it's waiting for a driver to pick it up
+                        // then move the order to the relavent vector
+                    }else if(volunteer->get_vol_identifier() == "d"){
+                        o->setStatus(OrderStatus::COMPLETED);
+                    }
+                    wareHouse.addOrder(o); // adding to pendingorders/completedorders(depends on the status we changed to) now
+
+                    in_proc_Ord_index = 0;
+                    for(Order* ord: wareHouse.getInProcessOrders()){  // delete copied order and erase it's place
+                        if(ord->getId() == o->getId()){
+                            delete ord;  // might need to delete this  <<<<================================
+            //                 wareHouse.getInProcessOrders().erase(wareHouse.getInProcessOrders().begin() + in_proc_Ord_index); // remove because the order moved to the pending/completedorders vector
+            //                 break; // there's only one order with that order id so let's save time
+                        }else{
+                            in_proc_Ord_index ++;
+                        }
+                    }
+
+            //         volunteer->setCompletedOrderId(NO_ORDER);  // change the completedOrderId of the volunteer back to NO_ORDER
+                }
+
+
+                if(volunteer->hasOrdersLeft() == false && volunteer->isBusy() == false){   //  check which limited volunteers have finished and reached their max and delete them   <<<============
+            //         delete volunteer;  // might need to delete this  <<<<================================
+            //         // see if this is ok   <<<<==================================
+            //         wareHouse.getVolunteers().erase(wareHouse.getVolunteers().begin() + pos_v);  //  delete and organize the vector(vector volunteers)
+                }else{
+                    pos_v ++;
+                }
+
+            }
+        }
+
+
+
+
+
 
     }
     this->complete();
@@ -440,6 +485,9 @@ void PrintActionsLog::act(WareHouse& wareHouse){
     for(Action* a : wareHouse.getActions()){
         cout << a->toString() + "\n";
     }
+    cout << wareHouse.getCustomers().size();   //   <<<===================  test
+	cout << wareHouse.getVolunteers().size();   //   <<<===================  test
+	cout << wareHouse.getPendingOrders().size();   //   <<<===================  test
     this->complete();
 }
 
