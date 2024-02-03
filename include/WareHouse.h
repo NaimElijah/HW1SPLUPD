@@ -32,7 +32,9 @@ class WareHouse {
         Customer& getCustomer(int customerId) const;
         Volunteer& getVolunteer(int volunteerId) const;
         Order& getOrder(int orderId) const;
-        void handleOrdersInStep();
+
+        void handleOrders();  // used in SimulateStep in Action.cpp
+        void handleVolunteers();  // used in SimulateStep in Action.cpp
 
         vector<Order*> getPendingOrders() const;
         vector<Order*> getInProcessOrders() const;

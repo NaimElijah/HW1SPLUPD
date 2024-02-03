@@ -539,15 +539,9 @@ bool WareHouse::getBackedUp(){
 
 
 
-void WareHouse::handleOrdersInStep(){
+void WareHouse::handleOrders(){
 	if(pendingOrders.size() > 0){
-        // for(Order* pendingOrder : wareHouse.getPendingOrders()){  // taking care of the orders in the pendingorders vector((before collecting) or (after collecting and before delivering), checkkkkkkkkkkkkkkkkk)
-
-        for(int i=0; i<pendingOrders.size(); i++){  // maybe convert the size_t to int or the other way around   <<<======================== 
-        //         // for(int i=0; (i>=0 && (size_t)i<wareHouse.getPendingOrders().size()); i++){
-        //         // for(auto iter = wareHouse.getPendingOrders().begin(); iter != wareHouse.getPendingOrders().end();){  // <<<<<=======================  with iterator
-        //         // for(auto iter = wareHouse.getPendingOrders().rbegin(); iter != wareHouse.getPendingOrders().rend();){  // <<<<<=======================  with reverse iterator
-        //         // Order* order = *iter;
+        for(int i=0; i<pendingOrders.size(); i++){
             // go over all the collectors and see who is available   <<<============
         //         // if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING && wareHouse.getPendingOrders().at(i)->getCollectorId() == NO_VOLUNTEER){  // assigning a new order to a collector. move orders between vectors accordingly, when finished.
             if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING && pendingOrders.at(i)->getCollectorId() == NO_VOLUNTEER){
@@ -582,27 +576,60 @@ void WareHouse::handleOrdersInStep(){
                 }
             }
         }
-
-        
     }
-
-
-
-
-
-
-
-
-	// continue with the volunteers     <<<<<<<<==========================================================  continue
-	
-
-
-
-
 	
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+void WareHouse::handleVolunteers(){
+	if(volunteers.size() > 0){
+            int in_proc_Ord_index;
+			for(int i=0; i<volunteers.size(); i++){  // going over the volunteers
+				
+                if(volunteers.at(i)->isBusy()){  // doing the step is relavent only if he is given a task
+                    volunteers.at(i)->step();
+                }
+
+                if((volunteers.at(i)->isBusy() == false) && (volunteers.at(i)->getCompletedOrderId()!= NO_ORDER)){  // if the volunteer finished his task
+                    Order* o = new Order(getOrder(volunteers.at(i)->getCompletedOrderId()));  // using default copy constructor, this is the order the volunteer just finished processing
+                    if(volunteers.at(i)->get_vol_identifier() == "c"){
+                        o->setStatus(OrderStatus::PENDING); // from what nir said it should be in pending again because it's waiting for a driver to pick it up
+                    }else if(volunteers.at(i)->get_vol_identifier() == "d"){
+                        o->setStatus(OrderStatus::COMPLETED);
+                    }
+                    addOrder(o); // adding to pendingorders/completedorders(depends on the status we changed to) now
+
+                    // for(Order* ord: inProcessOrders){
+					for(int j=0; j<inProcessOrders.size(); j++){  // erase copied order from inProcessOrders
+                        if(inProcessOrders.at(j)->getId() == o->getId()){
+                            inProcessOrders.erase(inProcessOrders.begin() + j); // remove because the order moved to the pending/completedorders vector
+							j--; // not really needed because we are activating break, but still, just because.
+							break; // we can break because there should only be one order with that id, only one order like that, so let's save a bit of time.
+                        }
+                    }
+                    volunteers.at(i)->setCompletedOrderId(NO_ORDER);  // change the completedOrderId of the volunteer back to NO_ORDER
+                }
+
+                if(volunteers.at(i)->hasOrdersLeft() == false && volunteers.at(i)->isBusy() == false){   //  check which limited volunteers have finished and reached their max and delete them   <<<============
+                    volunteers.erase(volunteers.begin() + i);  //  delete and organize the vector(vector volunteers)
+					i--;
+                }
+
+            }
+        }
+
+}
 
 
 
