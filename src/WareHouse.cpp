@@ -439,9 +439,6 @@ void WareHouse::start(){
 			actionsLog.push_back(step);
 
 		}else if(input_parts.at(0) == "order"){
-			Order* testOrder = new Order(0, 0, 5);  //   <<<<<<<<<<<===========================================  testing
-			testOrder->setStatus(OrderStatus::PENDING);
-			this->addOrder(testOrder);  //   <<<<<<<<<<<===========================================  testing
 			AddOrder* o = new AddOrder(stoi(input_parts.at(1)));
 			o->act(*(this));
 			actionsLog.push_back(o);
@@ -530,6 +527,95 @@ void WareHouse::changeBackedUp(){
 bool WareHouse::getBackedUp(){
 	return backedUp;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+void WareHouse::handleOrdersInStep(){
+	if(pendingOrders.size() > 0){
+        // for(Order* pendingOrder : wareHouse.getPendingOrders()){  // taking care of the orders in the pendingorders vector((before collecting) or (after collecting and before delivering), checkkkkkkkkkkkkkkkkk)
+
+        for(int i=0; i<pendingOrders.size(); i++){  // maybe convert the size_t to int or the other way around   <<<======================== 
+        //         // for(int i=0; (i>=0 && (size_t)i<wareHouse.getPendingOrders().size()); i++){
+        //         // for(auto iter = wareHouse.getPendingOrders().begin(); iter != wareHouse.getPendingOrders().end();){  // <<<<<=======================  with iterator
+        //         // for(auto iter = wareHouse.getPendingOrders().rbegin(); iter != wareHouse.getPendingOrders().rend();){  // <<<<<=======================  with reverse iterator
+        //         // Order* order = *iter;
+            // go over all the collectors and see who is available   <<<============
+        //         // if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING && wareHouse.getPendingOrders().at(i)->getCollectorId() == NO_VOLUNTEER){  // assigning a new order to a collector. move orders between vectors accordingly, when finished.
+            if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING && pendingOrders.at(i)->getCollectorId() == NO_VOLUNTEER){
+                for(Volunteer* vol : volunteers){
+                    if(vol->get_vol_identifier() == "c" && vol->canTakeOrder(*(pendingOrders.at(i)))){
+                        pendingOrders.at(i)->setCollectorId(vol->getId());
+        //                     // cout << (*iter)->toString();     //        <<<<<===================  test
+                        vol->acceptOrder(*(pendingOrders.at(i)));   ///    do a clone to Order and add a clone when giving it to the next place and delete the old
+                        pendingOrders.at(i)->setStatus(OrderStatus::COLLECTING);
+                        addOrder(pendingOrders.at(i)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
+                        
+                        pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
+                        i--;
+                        break;
+                    } // now gave the new order to a collector if a collector is free
+                }
+
+        //         // }else if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING){  // assigning an order that has been processed by a collector, to a driver. move orders between vectors accordingly, when finished.
+            // }else if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING){
+			}else{ // if  ====>> (pendingOrders.at(i)->getStatus() == OrderStatus::PENDING)
+                for(Volunteer* vol : volunteers){
+                    if(vol->get_vol_identifier() == "d" && vol->canTakeOrder(*(pendingOrders.at(i)))){
+                        pendingOrders.at(i)->setDriverId(vol->getId());
+                        vol->acceptOrder(*(pendingOrders.at(i)));
+                        pendingOrders.at(i)->setStatus(OrderStatus::DELIVERING);
+                        addOrder(pendingOrders.at(i)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
+
+                        pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
+                        i--;
+                        break;
+                    } // now gave the already collected order to a driver if a driver is free
+                }
+            }
+        }
+
+        
+    }
+
+
+
+
+
+
+
+
+	// continue with the volunteers     <<<<<<<<==========================================================  continue
+	
+
+
+
+
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

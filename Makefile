@@ -1,17 +1,16 @@
 # All Targets
 
-all: run
-
+all: warehouse
 
 # Tool invocations
 
-run: bin/Action.o bin/Customer.o bin/Order.o bin/Volunteer.o bin/WareHouse.o bin/main.o
+warehouse: bin/Action.o bin/Customer.o bin/Order.o bin/Volunteer.o bin/WareHouse.o bin/main.o
 
 	# @echo 'Building target: run'  // echo prints
 
 	# @echo 'Invoking: C++ Linker'
 
-	g++ -o bin/run bin/Action.o bin/Customer.o bin/Order.o bin/Volunteer.o bin/WareHouse.o bin/main.o
+	g++ -o bin/warehouse bin/Action.o bin/Customer.o bin/Order.o bin/Volunteer.o bin/WareHouse.o bin/main.o
 
 	# @echo 'Finished building target: run'
 

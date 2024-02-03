@@ -32,6 +32,7 @@ class WareHouse {
         Customer& getCustomer(int customerId) const;
         Volunteer& getVolunteer(int volunteerId) const;
         Order& getOrder(int orderId) const;
+        void handleOrdersInStep();
 
         vector<Order*> getPendingOrders() const;
         vector<Order*> getInProcessOrders() const;
