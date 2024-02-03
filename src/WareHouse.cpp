@@ -400,11 +400,6 @@ void WareHouse::InputFromFile(const string& configFilePath){            //      
     }
 
 	file.close();
-
-	cout << this->customers.size();   //   <<<===================  test
-	cout << this->volunteers.size();   //   <<<===================  test
-	cout << this->pendingOrders.size();   //   <<<===================  test
-
 }
 
 
@@ -497,9 +492,6 @@ Volunteer& WareHouse::getNotfV() const{
 }
 
 int WareHouse::getCustomerCounter() const{
-	// cout << to_string(customerCounter) + " <==";
-	// cout << to_string(volunteerCounter) + " <==";          //  just testing
-	// cout << to_string(ordersCounter) + " <==";
 	return customerCounter;
 }
 void WareHouse::setCustomerCounter(int i){
@@ -527,10 +519,6 @@ void WareHouse::changeBackedUp(){
 bool WareHouse::getBackedUp(){
 	return backedUp;
 }
-
-
-
-
 
 
 
@@ -585,9 +573,6 @@ void WareHouse::handleOrders(){
 
 
 
-
-
-
 void WareHouse::handleVolunteers(){
 	if(volunteers.size() > 0){
 			for(int i=0; i< static_cast<int>(volunteers.size()); i++){  // going over the volunteers
@@ -603,7 +588,8 @@ void WareHouse::handleVolunteers(){
                     }else if(volunteers.at(i)->get_vol_identifier() == "d"){
                         o->setStatus(OrderStatus::COMPLETED);
                     }
-                    addOrder(o); // adding to pendingorders/completedorders(depends on the status we changed to) now
+                    addOrder(o->clone()); // adding to pendingorders/completedorders(depends on the status we changed to) now
+					delete o;
 
 					for(int j=0; j< static_cast<int>(inProcessOrders.size()); j++){  // erase copied order from inProcessOrders
                         if(inProcessOrders.at(j)->getId() == o->getId()){
@@ -624,16 +610,6 @@ void WareHouse::handleVolunteers(){
         }
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -743,11 +719,8 @@ Order& WareHouse::getOrder(int orderId) const{
 void WareHouse::close(){
 	// close the Warehouse
 	isOpen = false;
-	//  from what I gathered, the destructor is automatically activated when the WareHouse instance is on the stack and is out of scope, but still activate the destructor here 
-	//                                                                                                                            for the case that the instance is on the heap
 	// delete *this;  // using the destructor        no need (explanation below)
-	///   ===========================>>>>>>>>>>>  the destructor will automatically activate when the WareHouse in main goes out of scope, becasue the WareHouse in main is on the stack
-
+	///   ===========================>>>>>>>>>>>  the destructor will automatically activate when the WareHouse in main goes out of scope, because the WareHouse in main is on the stack
 }
 
 void WareHouse::open(){

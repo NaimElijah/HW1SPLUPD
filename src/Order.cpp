@@ -38,7 +38,7 @@ using namespace std;
         return status;
     }
     
-       Order* Order ::clone() const{
+    Order* Order::clone() const{
         return new Order(*this);
     }
 

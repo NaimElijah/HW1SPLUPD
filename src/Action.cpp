@@ -23,7 +23,7 @@ void Action::complete(){
 void Action::error(string errorMsg){
     status = ActionStatus::ERROR;
     this->errorMsg = errorMsg;
-    cout << "Error: " + this->errorMsg;
+    cout << "\nError: " + this->errorMsg + "\n\n";
 }
 
 string Action::getErrorMsg() const{
@@ -109,7 +109,7 @@ AddOrder::AddOrder(int id): customerId(id){};
 
 void AddOrder::act(WareHouse& wareHouse){
     if((customerId > wareHouse.getCustomerCounter()) || (wareHouse.getCustomer(customerId).canMakeOrder() == false)){
-        error("Cannot place this order\n");
+        error("Cannot place this order");
     }else{
         Order* o = new Order(wareHouse.getOrdersCounter(), customerId, wareHouse.getCustomer(customerId).getCustomerDistance());
         o->setStatus(OrderStatus::PENDING);
@@ -206,9 +206,9 @@ PrintOrderStatus::PrintOrderStatus(int id): orderId(id){};
 
 void PrintOrderStatus::act(WareHouse& wareHouse){
     if(orderId > wareHouse.getOrdersCounter()){
-        error("Order doesn't exist\n");
+        error("Order doesn't exist");
     }else{
-        cout << wareHouse.getOrder(orderId).toString() + "\n";
+        cout << "\n" + wareHouse.getOrder(orderId).toString() + "\n\n";
         this->complete();
     }
 
@@ -252,9 +252,9 @@ PrintCustomerStatus::PrintCustomerStatus(int customerId): customerId(customerId)
 
 void PrintCustomerStatus::act(WareHouse& wareHouse){
     if(customerId > wareHouse.getCustomerCounter()){
-        error("Customer doesn't exist\n");
+        error("Customer doesn't exist");
     }else{
-        cout << wareHouse.getCustomer(customerId).toString(wareHouse) + "\n";
+        cout << "\n" + wareHouse.getCustomer(customerId).toString(wareHouse) + "\n\n";
         this->complete();
     }
 }
@@ -298,9 +298,9 @@ PrintVolunteerStatus::PrintVolunteerStatus(int id): volunteerId(id){};
 
 void PrintVolunteerStatus::act(WareHouse& wareHouse){
     if(wareHouse.getVolunteer(volunteerId).getName() == "not found"){
-        error("Volunteer doesn't exist\n");
+        error("Volunteer doesn't exist");
     }else{
-        cout << wareHouse.getVolunteer(volunteerId).toString() +"\n";
+        cout << "\n" + wareHouse.getVolunteer(volunteerId).toString() +"\n\n";
         this->complete();
     }
 }
@@ -343,12 +343,12 @@ PrintActionsLog::PrintActionsLog(){};
 
 
 void PrintActionsLog::act(WareHouse& wareHouse){
+    string res = "\n";
     for(Action* a : wareHouse.getActions()){
-        cout << a->toString() + "\n";
+        res += a->toString() + "\n";
     }
-    cout << wareHouse.getCustomers().size();   //   <<<===================  test
-	cout << wareHouse.getVolunteers().size();   //   <<<===================  test
-	cout << wareHouse.getPendingOrders().size();   //   <<<===================  test
+    res += "\n";
+    cout << res;
     this->complete();
 }
 
@@ -389,7 +389,7 @@ Close::Close(){};
 
 void Close::act(WareHouse& wareHouse){
     // print all the orders with each of their status's
-    string output = "";
+    string output = "\n";
     for(Order* o : wareHouse.getPendingOrders()){
         output += "OrderID: " + to_string(o->getId());
         output += ", CustomerID: " + to_string(o->getCustomerId());
@@ -409,19 +409,18 @@ void Close::act(WareHouse& wareHouse){
         output += ", OrderStatus: " + status_s + "\n";
     }
 
-
     for(Order* o : wareHouse.getCompletedOrders()){
         output += "OrderID: " + to_string(o->getId());
         output += ", CustomerID: " + to_string(o->getCustomerId());
         output += ", OrderStatus: COMPLETED\n";
     }
-
-    // output.erase(output.end());  to delete the \n
+    
+    output += "\n";
     cout << output;
 
     wareHouse.close();
     // delete wareHouse;
-    ///   ===========================>>>>>>>>>>>  the destructor will automatically activate when the WareHouse in main goes out of scope, becasue the WareHouse in main is on the stack
+    ///   ================>>>>>>>>  the destructor will automatically activate when the WareHouse in main goes out of scope, becasue the WareHouse in main is on the stack
 
     this->complete();
 }
@@ -519,7 +518,7 @@ void RestoreWareHouse::act(WareHouse& wareHouse){
         wareHouse = *backup;  // using copy assignment operator
         complete();
     }else{
-        error("No backup available\n");
+        error("No backup available");
     }
 
 }

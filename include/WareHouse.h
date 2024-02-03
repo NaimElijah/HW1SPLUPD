@@ -68,9 +68,9 @@ class WareHouse {
         vector<Order*> completedOrders;
         vector<Volunteer*> volunteers;
         vector<Customer*> customers;
-        int customerCounter;  //For assigning unique customer IDs
-        int volunteerCounter;  //For assigning unique volunteer IDs
-        int ordersCounter;  //For assigning unique order IDs
+        int customerCounter;
+        int volunteerCounter;
+        int ordersCounter;
 
         Volunteer* notfV;
 

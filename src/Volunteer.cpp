@@ -106,7 +106,7 @@ bool CollectorVolunteer::canTakeOrder(const Order& order) const{
     return false;
 }
 
-void CollectorVolunteer::acceptOrder(const Order& order){  // check if can take order first, in SimulateStep
+void CollectorVolunteer::acceptOrder(const Order& order){
     this->setActiveOrderId(order.getId());
     this->setTimeLeft(this->getCoolDown());
 
@@ -115,7 +115,15 @@ void CollectorVolunteer::acceptOrder(const Order& order){  // check if can take 
 string CollectorVolunteer::toString() const{
     string res = "";
     res += "VolunteerID: " + to_string(this->getId());
-    res += "\nisBusy: " + to_string(this->isBusy());  //  check if this converts and prints bool well   <<<<<<<==========================================
+    
+    string boo;
+    if(to_string(this->isBusy()) == "0"){
+        boo = "false";
+    }else{
+        boo = "true";
+    }
+    res += "\nisBusy: " + boo;
+
 
     if(this->getActiveOrderId() == NO_ORDER){
         res += "\nOrderID: None";
@@ -191,7 +199,14 @@ void LimitedCollectorVolunteer::setNumOrdersLeft(int nol){
 string LimitedCollectorVolunteer::toString() const{
     string res = "";
     res += "VolunteerID: " + to_string(this->getId());
-    res += "\nisBusy: " + to_string(this->isBusy());
+
+    string boo;
+    if(to_string(this->isBusy()) == "0"){
+        boo = "false";
+    }else{
+        boo = "true";
+    }
+    res += "\nisBusy: " + boo;
     
     if(this->getActiveOrderId() == NO_ORDER){
         res += "\nOrderID: None";
@@ -284,7 +299,14 @@ void DriverVolunteer::step(){
 string DriverVolunteer::toString() const{
     string res = "";
     res += "VolunteerID: " + to_string(this->getId());
-    res += "\nisBusy: " + to_string(this->isBusy());
+
+    string boo;
+    if(to_string(this->isBusy()) == "0"){
+        boo = "false";
+    }else{
+        boo = "true";
+    }
+    res += "\nisBusy: " + boo;
     
     if(this->getActiveOrderId() == NO_ORDER){
         res += "\nOrderID: None";
@@ -357,7 +379,14 @@ void LimitedDriverVolunteer::acceptOrder(const Order& order){  // check if can t
 string LimitedDriverVolunteer::toString() const{
     string res = "";
     res += "VolunteerID: " + to_string(this->getId());
-    res += "\nisBusy: " + to_string(this->isBusy());
+
+    string boo;
+    if(to_string(this->isBusy()) == "0"){
+        boo = "false";
+    }else{
+        boo = "true";
+    }
+    res += "\nisBusy: " + boo;
     
     if(this->getActiveOrderId() == NO_ORDER){
         res += "\nOrderID: None";
