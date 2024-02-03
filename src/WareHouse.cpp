@@ -541,14 +541,12 @@ bool WareHouse::getBackedUp(){
 
 void WareHouse::handleOrders(){
 	if(pendingOrders.size() > 0){
-        for(int i=0; i<pendingOrders.size(); i++){
+        for(int i=0; i< static_cast<int>(pendingOrders.size()); i++){
             // go over all the collectors and see who is available   <<<============
-        //         // if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING && wareHouse.getPendingOrders().at(i)->getCollectorId() == NO_VOLUNTEER){  // assigning a new order to a collector. move orders between vectors accordingly, when finished.
-            if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING && pendingOrders.at(i)->getCollectorId() == NO_VOLUNTEER){
+            if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING && pendingOrders.at(i)->getCollectorId() == NO_VOLUNTEER){  // assigning a new order to a collector.
                 for(Volunteer* vol : volunteers){
                     if(vol->get_vol_identifier() == "c" && vol->canTakeOrder(*(pendingOrders.at(i)))){
                         pendingOrders.at(i)->setCollectorId(vol->getId());
-        //                     // cout << (*iter)->toString();     //        <<<<<===================  test
                         vol->acceptOrder(*(pendingOrders.at(i)));   ///    do a clone to Order and add a clone when giving it to the next place and delete the old
                         pendingOrders.at(i)->setStatus(OrderStatus::COLLECTING);
                         addOrder(pendingOrders.at(i)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
@@ -559,8 +557,6 @@ void WareHouse::handleOrders(){
                     } // now gave the new order to a collector if a collector is free
                 }
 
-        //         // }else if(wareHouse.getPendingOrders().at(i)->getStatus() == OrderStatus::PENDING){  // assigning an order that has been processed by a collector, to a driver. move orders between vectors accordingly, when finished.
-            // }else if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING){
 			}else{ // if  ====>> (pendingOrders.at(i)->getStatus() == OrderStatus::PENDING)
                 for(Volunteer* vol : volunteers){
                     if(vol->get_vol_identifier() == "d" && vol->canTakeOrder(*(pendingOrders.at(i)))){
@@ -594,8 +590,7 @@ void WareHouse::handleOrders(){
 
 void WareHouse::handleVolunteers(){
 	if(volunteers.size() > 0){
-            int in_proc_Ord_index;
-			for(int i=0; i<volunteers.size(); i++){  // going over the volunteers
+			for(int i=0; i< static_cast<int>(volunteers.size()); i++){  // going over the volunteers
 				
                 if(volunteers.at(i)->isBusy()){  // doing the step is relavent only if he is given a task
                     volunteers.at(i)->step();
@@ -610,8 +605,7 @@ void WareHouse::handleVolunteers(){
                     }
                     addOrder(o); // adding to pendingorders/completedorders(depends on the status we changed to) now
 
-                    // for(Order* ord: inProcessOrders){
-					for(int j=0; j<inProcessOrders.size(); j++){  // erase copied order from inProcessOrders
+					for(int j=0; j< static_cast<int>(inProcessOrders.size()); j++){  // erase copied order from inProcessOrders
                         if(inProcessOrders.at(j)->getId() == o->getId()){
                             inProcessOrders.erase(inProcessOrders.begin() + j); // remove because the order moved to the pending/completedorders vector
 							j--; // not really needed because we are activating break, but still, just because.
