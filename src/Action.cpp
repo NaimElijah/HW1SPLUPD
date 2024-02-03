@@ -205,7 +205,7 @@ PrintOrderStatus::PrintOrderStatus(int id): orderId(id){};
 
 
 void PrintOrderStatus::act(WareHouse& wareHouse){
-    if(orderId > wareHouse.getOrdersCounter()){
+    if(orderId > (wareHouse.getOrdersCounter()-1)){
         error("Order doesn't exist");
     }else{
         cout << "\n" + wareHouse.getOrder(orderId).toString() + "\n\n";
@@ -251,7 +251,7 @@ string PrintOrderStatus::toString() const{
 PrintCustomerStatus::PrintCustomerStatus(int customerId): customerId(customerId){};
 
 void PrintCustomerStatus::act(WareHouse& wareHouse){
-    if(customerId > wareHouse.getCustomerCounter()){
+    if(customerId > (wareHouse.getCustomerCounter()-1)){
         error("Customer doesn't exist");
     }else{
         cout << "\n" + wareHouse.getCustomer(customerId).toString(wareHouse) + "\n\n";

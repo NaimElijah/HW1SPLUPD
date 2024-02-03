@@ -70,26 +70,32 @@ WareHouse& WareHouse::operator=(const WareHouse& other){ // copy assignment oper
 
 		for (Action* ac : this->getActions()) {  // deletion
 			delete ac;
+			ac = nullptr;  //    <<<<<<=============================================  trying this
 		}
 
 		for (Volunteer* vol : this->getVolunteers()) {
 			delete vol;
+			vol = nullptr;  //    <<<<<<=============================================  trying this
 		}
 
 		for (Customer* cus : this->getCustomers()) {
 			delete cus;
+			cus = nullptr;  //    <<<<<<=============================================  trying this
 		}
 
 		for (Order* ord : this->getPendingOrders()) {
 			delete ord;
+			ord = nullptr;  //    <<<<<<=============================================  trying this
 		}
 		
 		for (Order* ord : this->getInProcessOrders()) {
 			delete ord;
+			ord = nullptr;  //    <<<<<<=============================================  trying this
 		}
 			
 		for (Order* ord : this->getCompletedOrders()) {
 			delete ord;
+			ord = nullptr;  //    <<<<<<=============================================  trying this
 		}
 
 		actionsLog.clear();
@@ -144,26 +150,32 @@ WareHouse& WareHouse::operator=(WareHouse&& other) noexcept {   //   move assign
 		delete notfV;
     	for (Action* ac : this->getActions()) {  // deletion
 			delete ac;
+			ac = nullptr;  //    <<<<<<=============================================  trying this
 		}
 
 		for (Volunteer* vol : this->getVolunteers()) {
 			delete vol;
+			vol = nullptr;  //    <<<<<<=============================================  trying this
 		}
 
 		for (Customer* cus : this->getCustomers()) {
 			delete cus;
+			cus = nullptr;  //    <<<<<<=============================================  trying this
 		}
 
 		for (Order* ord : this->getPendingOrders()) {
 			delete ord;
+			ord = nullptr;  //    <<<<<<=============================================  trying this
 		}
 		
 		for (Order* ord : this->getInProcessOrders()) {
 			delete ord;
+			ord = nullptr;  //    <<<<<<=============================================  trying this
 		}
 			
 		for (Order* ord : this->getCompletedOrders()) {
 			delete ord;
+			ord = nullptr;  //    <<<<<<=============================================  trying this
 		}
 
 
@@ -317,35 +329,42 @@ WareHouse::~WareHouse(){     ///  Destructor
 
 	for(Action* a: actionsLog){  //  delete actionsLog
 		delete a;
+		a = nullptr;  //    <<<<<<=============================================  trying this
 	}
 	actionsLog.clear();
 
 	for(Order* o: pendingOrders){  //  delete pendingOrders
 		delete o;
+		o = nullptr;  //    <<<<<<=============================================  trying this
 	}
 	pendingOrders.clear();
 
 	for(Order* o: inProcessOrders){  //  delete inProcessOrders
 		delete o;
+		o = nullptr;  //    <<<<<<=============================================  trying this
 	}
 	inProcessOrders.clear();
 
 	for(Order* o: completedOrders){  //  delete completedOrders
 		delete o;
+		o = nullptr;  //    <<<<<<=============================================  trying this
 	}
 	completedOrders.clear();
 
 	for(Customer* c: customers){  //  delete customers
 		delete c;
+		c = nullptr;  //    <<<<<<=============================================  trying this
 	}
 	customers.clear();
 
 	for(Volunteer* v: volunteers){  //  delete volunteers
 		delete v;
+		v = nullptr;  //    <<<<<<=============================================  trying this
 	}
 	volunteers.clear();
 
-	delete notfV;   //   check if we need to nullptr these
+	delete notfV;
+	notfV = nullptr;  //    <<<<<<=============================================  trying this
 	// we don't need to delete the backup, according to nir the backup survives even after the WareHouse is destroyed and then it's destroyed in the main
 }
 
