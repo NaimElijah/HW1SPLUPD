@@ -588,52 +588,93 @@ bool WareHouse::getBackedUp(){
 
 
 
+void WareHouse::handleOrders() {
+    if (pendingOrders.size() > 0) {
+        for (int i = 0; i < static_cast<int>(pendingOrders.size()); i++) {
+            Order* order = pendingOrders.at(i);
+            if (order->getStatus() == OrderStatus::PENDING) {
+                // Check for available collector
+                for (Volunteer* vol : volunteers) {
+                    if (vol->get_vol_identifier() == "c" && vol->canTakeOrder(*order)) {
+                        order->setCollectorId(vol->getId());
+                        vol->acceptOrder(*order);
+                        order->setStatus(OrderStatus::COLLECTING);
 
-
-
-
-void WareHouse::handleOrders(){
-	if(pendingOrders.size() > 0){
-        for(int i=0; i< static_cast<int>(pendingOrders.size()); i++){
-            // go over all the collectors and see who is available   <<<============
-            if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING){  // assigning a new order to a collector.
-                for(Volunteer* vol : volunteers){
-                    if(vol->get_vol_identifier() == "c" && vol->canTakeOrder(*(pendingOrders.at(i)))){
-                        pendingOrders.at(i)->setCollectorId(vol->getId());
-                        vol->acceptOrder(*(pendingOrders.at(i)));   ///    do a clone to Order and add a clone when giving it to the next place and delete the old
-                        pendingOrders.at(i)->setStatus(OrderStatus::COLLECTING);
-
-					Order* o1;
-					o1 = new Order(*(pendingOrders.at(i))); // Clone the order
-					addOrder(o1); // Add the cloned order to inprocessorders
-					delete pendingOrders.at(i);//have to delete the copy from heap
-					pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
-                    i--;
-                     break;
-                    } // now gave the new order to a collector if a collector is free
-                }
-
-			}else{ // if  ====>> (pendingOrders.at(i)->getStatus() == OrderStatus::COLLECTING)
-                for(Volunteer* vol : volunteers){
-                    if(vol->get_vol_identifier() == "d" && vol->canTakeOrder(*(pendingOrders.at(i)))){
-                        pendingOrders.at(i)->setDriverId(vol->getId());
-                        vol->acceptOrder(*(pendingOrders.at(i)));    //  <<<<=============================================
-                        pendingOrders.at(i)->setStatus(OrderStatus::DELIVERING);
-
-						Order* o2;
-						o2 = new Order(*(pendingOrders.at(i))); // using default copy constructor
-                        addOrder(o2); // adding to inprocessorders now because we changed the order's status, tried giving the clone as well
-						delete pendingOrders.at(i);//have to delete the copy from heap
-                        pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
+                        // Clone the order and move it to inProcessOrders
+                        Order* clonedOrder = new Order(*order);
+                        addOrder(clonedOrder);
+                        delete order;
+                        pendingOrders.erase(pendingOrders.begin() + i);
                         i--;
                         break;
-                    } // now gave the already collected order to a driver if a driver is free
+                    }
+                }
+            } else if (order->getStatus() == OrderStatus::COLLECTING) {
+                // Check for available driver
+                for (Volunteer* vol : volunteers) {
+                    if (vol->get_vol_identifier() == "d" && vol->canTakeOrder(*order)) {
+                        order->setDriverId(vol->getId());
+                        vol->acceptOrder(*order);
+                        order->setStatus(OrderStatus::DELIVERING);
+
+                        // Clone the order and move it to inProcessOrders
+                        Order* clonedOrder = new Order(*order);
+                        addOrder(clonedOrder);
+                        delete order;
+                        pendingOrders.erase(pendingOrders.begin() + i);
+                        i--;
+                        break;
+                    }
                 }
             }
         }
     }
-	
 }
+
+
+
+// void WareHouse::handleOrders(){
+// 	if(pendingOrders.size() > 0){
+//         for(int i=0; i< static_cast<int>(pendingOrders.size()); i++){
+//             // go over all the collectors and see who is available   <<<============
+//             if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING){  // assigning a new order to a collector.
+//                 for(Volunteer* vol : volunteers){
+//                     if(vol->get_vol_identifier() == "c" && vol->canTakeOrder(*(pendingOrders.at(i)))){
+//                         pendingOrders.at(i)->setCollectorId(vol->getId());
+//                         vol->acceptOrder(*(pendingOrders.at(i)));   ///    do a clone to Order and add a clone when giving it to the next place and delete the old
+//                         pendingOrders.at(i)->setStatus(OrderStatus::COLLECTING);
+
+// 					Order* o1;
+// 					o1 = new Order(*(pendingOrders.at(i))); // Clone the order
+// 					addOrder(o1); // Add the cloned order to inprocessorders
+// 					delete pendingOrders.at(i);//have to delete the copy from heap
+// 					pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
+//                     i--;
+//                      break;
+//                     } // now gave the new order to a collector if a collector is free
+//                 }
+
+// 			}else{ // if  ====>> (pendingOrders.at(i)->getStatus() == OrderStatus::COLLECTING)
+//                 for(Volunteer* vol : volunteers){
+//                     if(vol->get_vol_identifier() == "d" && vol->canTakeOrder(*(pendingOrders.at(i)))){
+//                         pendingOrders.at(i)->setDriverId(vol->getId());
+//                         vol->acceptOrder(*(pendingOrders.at(i)));    //  <<<<=============================================
+//                         pendingOrders.at(i)->setStatus(OrderStatus::DELIVERING);
+
+// 						Order* o2;
+// 						o2 = new Order(*(pendingOrders.at(i))); // using default copy constructor
+//                         addOrder(o2); // adding to inprocessorders now because we changed the order's status, tried giving the clone as well
+// 						delete pendingOrders.at(i);//have to delete the copy from heap
+//                         pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
+//                         i--;
+//                         break;
+//                     } // now gave the already collected order to a driver if a driver is free
+//                 }
+//             }
+//         }
+//     }
+	
+// }
 
 
 
