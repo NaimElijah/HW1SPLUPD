@@ -603,13 +603,13 @@ void WareHouse::handleOrders(){
                         vol->acceptOrder(*(pendingOrders.at(i)));   ///    do a clone to Order and add a clone when giving it to the next place and delete the old
                         pendingOrders.at(i)->setStatus(OrderStatus::COLLECTING);
 
-						Order* o1;
-						o1 = new Order(*(pendingOrders.at(i))); // using default copy constructor
-                        addOrder(o1); // adding to inprocessorders now because we changed the order's status, tried giving the clone as well
-
-                        pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
-                        i--;
-                        break;
+					Order* o1;
+					o1 = new Order(*(pendingOrders.at(i))); // Clone the order
+					addOrder(o1); // Add the cloned order to inprocessorders
+					delete pendingOrders.at(i);//have to delete the copy from heap
+					pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
+                    i--;
+                     break;
                     } // now gave the new order to a collector if a collector is free
                 }
 
@@ -623,7 +623,7 @@ void WareHouse::handleOrders(){
 						Order* o2;
 						o2 = new Order(*(pendingOrders.at(i))); // using default copy constructor
                         addOrder(o2); // adding to inprocessorders now because we changed the order's status, tried giving the clone as well
-
+						delete pendingOrders.at(i);//have to delete the copy from heap
                         pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
                         i--;
                         break;
@@ -665,6 +665,7 @@ void WareHouse::handleVolunteers(){
 
 					for(int j=0; j< static_cast<int>(inProcessOrders.size()); j++){  // erase copied order from inProcessOrders
                         if(inProcessOrders.at(j)->getId() == o->getId()){
+							delete *(inProcessOrders.begin() + j);//have to delete the copy from heap
                             inProcessOrders.erase(inProcessOrders.begin() + j); // remove because the order moved to the pending/completedorders vector
 							j--; // not really needed because we are activating break, but still, just because.
 							break; // we can break because there should only be one order with that id, only one order like that, so let's save a bit of time.
@@ -674,7 +675,8 @@ void WareHouse::handleVolunteers(){
                 }
 
                 if(volunteers.at(i)->hasOrdersLeft() == false && volunteers.at(i)->isBusy() == false){   //  check which limited volunteers have finished and reached their max and delete them   <<<============
-                    volunteers.erase(volunteers.begin() + i);  //  delete and organize the vector(vector volunteers)
+                    delete *(volunteers.begin() + i) ;//have to delete the copy from heap
+					volunteers.erase(volunteers.begin() + i);  //  delete and organize the vector(vector volunteers)
 					i--;
                 }
 
