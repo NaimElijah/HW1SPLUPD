@@ -7,7 +7,8 @@
 using namespace std;
 
 WareHouse::WareHouse(const string& configFilePath):isOpen(false), backedUp(false), actionsLog(), pendingOrders(), inProcessOrders(), completedOrders(), volunteers(), customers(),
- customerCounter(0), volunteerCounter(0), ordersCounter(0), notfV(new CollectorVolunteer(-1, "not found", -1)){
+ customerCounter(0), volunteerCounter(0), ordersCounter(0), notfV(new CollectorVolunteer(-1, "not found", -1)), notfC(new SoldierCustomer(-1,"not found", -1,-1)), 
+ notfO(new Order(-1,-1,-1)) {
 	
 	InputFromFile(configFilePath);
 	
@@ -22,7 +23,8 @@ WareHouse::WareHouse(const string& configFilePath):isOpen(false), backedUp(false
 
 
 WareHouse::WareHouse(const WareHouse& wh): isOpen(wh.isOpen), backedUp(wh.backedUp), actionsLog(), pendingOrders(), inProcessOrders(), completedOrders(), volunteers(), customers(), 
- customerCounter(wh.customerCounter), volunteerCounter(wh.volunteerCounter), ordersCounter(wh.ordersCounter), notfV(wh.getNotfV().clone()){   //  copy constructor
+ customerCounter(wh.customerCounter), volunteerCounter(wh.volunteerCounter), ordersCounter(wh.ordersCounter), notfV(wh.getNotfV().clone()), notfC(wh.getNotfC().clone()), 
+ notfO(wh.getNotfO().clone()){   //  copy constructor
 
 	for (Action* ac : wh.getActions()) {  // assignment
 		actionsLog.push_back(ac->clone());
@@ -57,7 +59,6 @@ WareHouse::WareHouse(const WareHouse& wh): isOpen(wh.isOpen), backedUp(wh.backed
 
 
 
-
 WareHouse& WareHouse::operator=(const WareHouse& other){ // copy assignment operator(=)
 
 	if(this != &other){
@@ -67,35 +68,37 @@ WareHouse& WareHouse::operator=(const WareHouse& other){ // copy assignment oper
 		ordersCounter = other.getOrdersCounter();
 		backedUp = other.backedUp;
 		delete notfV;
+		delete notfC;
+		delete notfO;
 
 		for (Action* ac : this->getActions()) {  // deletion
 			delete ac;
-			ac = nullptr;  //    <<<<<<=============================================  trying this
+			ac = nullptr;
 		}
 
 		for (Volunteer* vol : this->getVolunteers()) {
 			delete vol;
-			vol = nullptr;  //    <<<<<<=============================================  trying this
+			vol = nullptr;
 		}
 
 		for (Customer* cus : this->getCustomers()) {
 			delete cus;
-			cus = nullptr;  //    <<<<<<=============================================  trying this
+			cus = nullptr;
 		}
 
 		for (Order* ord : this->getPendingOrders()) {
 			delete ord;
-			ord = nullptr;  //    <<<<<<=============================================  trying this
+			ord = nullptr;
 		}
 		
 		for (Order* ord : this->getInProcessOrders()) {
 			delete ord;
-			ord = nullptr;  //    <<<<<<=============================================  trying this
+			ord = nullptr;
 		}
 			
 		for (Order* ord : this->getCompletedOrders()) {
 			delete ord;
-			ord = nullptr;  //    <<<<<<=============================================  trying this
+			ord = nullptr;
 		}
 
 		actionsLog.clear();
@@ -129,6 +132,8 @@ WareHouse& WareHouse::operator=(const WareHouse& other){ // copy assignment oper
 			completedOrders.push_back(ord->clone());
 		}
 		notfV = other.getNotfV().clone();  // even though they have the same one, just because
+		notfC = other.getNotfC().clone();
+		notfO = other.getNotfO().clone();
 
 	}
 	return *this;
@@ -148,34 +153,37 @@ WareHouse& WareHouse::operator=(WareHouse&& other) noexcept {   //   move assign
 
 	if(this != &other){
 		delete notfV;
+		delete notfC;
+		delete notfO;
+
     	for (Action* ac : this->getActions()) {  // deletion
 			delete ac;
-			ac = nullptr;  //    <<<<<<=============================================  trying this
+			ac = nullptr;
 		}
 
 		for (Volunteer* vol : this->getVolunteers()) {
 			delete vol;
-			vol = nullptr;  //    <<<<<<=============================================  trying this
+			vol = nullptr;
 		}
 
 		for (Customer* cus : this->getCustomers()) {
 			delete cus;
-			cus = nullptr;  //    <<<<<<=============================================  trying this
+			cus = nullptr;
 		}
 
 		for (Order* ord : this->getPendingOrders()) {
 			delete ord;
-			ord = nullptr;  //    <<<<<<=============================================  trying this
+			ord = nullptr;
 		}
 		
 		for (Order* ord : this->getInProcessOrders()) {
 			delete ord;
-			ord = nullptr;  //    <<<<<<=============================================  trying this
+			ord = nullptr;
 		}
 			
 		for (Order* ord : this->getCompletedOrders()) {
 			delete ord;
-			ord = nullptr;  //    <<<<<<=============================================  trying this
+			ord = nullptr;
 		}
 
 
@@ -195,9 +203,20 @@ WareHouse& WareHouse::operator=(WareHouse&& other) noexcept {   //   move assign
 		other.setVolunteerCounter(0);
 		ordersCounter = other.getOrdersCounter();
 		other.setOrdersCounter(0);
+
     	notfV = other.getNotfV().clone();  // even though they have the same one, just because
 		delete other.notfV;
+
+		notfC = other.getNotfC().clone();  // even though they have the same one, just because
+		delete other.notfC;
+
+		notfO = other.getNotfO().clone();  // even though they have the same one, just because
+		delete other.notfO;
+
 		other.notfV = nullptr;
+		other.notfC = nullptr;
+		other.notfO = nullptr;
+
 		backedUp = other.getBackedUp();
 		other.backedUp = false;
 
@@ -258,14 +277,23 @@ WareHouse& WareHouse::operator=(WareHouse&& other) noexcept {   //   move assign
 
 
 WareHouse::WareHouse(WareHouse&& other) noexcept: isOpen(other.isOpen), backedUp(other.backedUp), actionsLog(), pendingOrders(), inProcessOrders(), completedOrders(), volunteers(), customers(), 
- customerCounter(other.getCustomerCounter()), volunteerCounter(other.getVolunteerCounter()), ordersCounter(other.getOrdersCounter()), notfV(other.getNotfV().clone()){   /// move constructor
+ customerCounter(other.getCustomerCounter()), volunteerCounter(other.getVolunteerCounter()), ordersCounter(other.getOrdersCounter()), notfV(other.getNotfV().clone()), notfC(other.getNotfC().clone()), 
+ notfO(other.getNotfO().clone()){   /// move constructor
 
 	other.isOpen = false;
 	other.setCustomerCounter(0);
 	other.setVolunteerCounter(0);
 	other.setOrdersCounter(0);
+
 	delete other.notfV;
 	other.notfV = nullptr;
+
+	delete other.notfC;
+	other.notfC = nullptr;
+
+	delete other.notfO;
+	other.notfO = nullptr;
+
 	other.backedUp = false;
 	
 
@@ -329,42 +357,48 @@ WareHouse::~WareHouse(){     ///  Destructor
 
 	for(Action* a: actionsLog){  //  delete actionsLog
 		delete a;
-		a = nullptr;  //    <<<<<<=============================================  trying this
+		a = nullptr;
 	}
 	actionsLog.clear();
 
 	for(Order* o: pendingOrders){  //  delete pendingOrders
 		delete o;
-		o = nullptr;  //    <<<<<<=============================================  trying this
+		o = nullptr;
 	}
 	pendingOrders.clear();
 
 	for(Order* o: inProcessOrders){  //  delete inProcessOrders
 		delete o;
-		o = nullptr;  //    <<<<<<=============================================  trying this
+		o = nullptr;
 	}
 	inProcessOrders.clear();
 
 	for(Order* o: completedOrders){  //  delete completedOrders
 		delete o;
-		o = nullptr;  //    <<<<<<=============================================  trying this
+		o = nullptr;
 	}
 	completedOrders.clear();
 
 	for(Customer* c: customers){  //  delete customers
 		delete c;
-		c = nullptr;  //    <<<<<<=============================================  trying this
+		c = nullptr;
 	}
 	customers.clear();
 
 	for(Volunteer* v: volunteers){  //  delete volunteers
 		delete v;
-		v = nullptr;  //    <<<<<<=============================================  trying this
+		v = nullptr;
 	}
 	volunteers.clear();
 
 	delete notfV;
-	notfV = nullptr;  //    <<<<<<=============================================  trying this
+	notfV = nullptr;
+
+	delete notfC;
+	notfC = nullptr;
+
+	delete notfO;
+	notfO = nullptr;
 	// we don't need to delete the backup, according to nir the backup survives even after the WareHouse is destroyed and then it's destroyed in the main
 }
 
@@ -380,7 +414,7 @@ WareHouse::~WareHouse(){     ///  Destructor
 void WareHouse::InputFromFile(const string& configFilePath){            //             <=================================================  input from configFile
 	string line;
     ifstream file(configFilePath);
-    if (file.is_open()) {
+    if (file.is_open()){
 
 		vector<string> strin_s;  // 0 - type , 1 - name, and for each other argument, it depends on the person
 		//  in vector because this way this will be flexible for each type of person
@@ -414,6 +448,10 @@ void WareHouse::InputFromFile(const string& configFilePath){            //      
 			
 			strin_s.clear();
         }
+
+		// for(Volunteer* v : volunteers){
+		
+		// }
 
 		///   no need to delete the vectors because they are on the stack as well as their interior variables
     }
@@ -485,7 +523,7 @@ void WareHouse::start(){
 		}else if(input_parts.at(0) == "close"){
 			Close* clo = new Close();
 			clo->act(*(this));
-			// actionsLog.push_back(clo); // the WareHouse is closing so we don't want to add this because we're deleting the contents of every vector as well
+			actionsLog.push_back(clo); // the WareHouse is closing, but we still add this so it will be deleted alongside the other actions
 
 		}else if(input_parts.at(0) == "backup"){
 			BackupWareHouse* bac_up_wa = new BackupWareHouse();
@@ -508,6 +546,14 @@ void WareHouse::start(){
 
 Volunteer& WareHouse::getNotfV() const{
 	return *(notfV);
+}
+
+Customer& WareHouse::getNotfC() const{
+	return *(notfC);
+}
+
+Order& WareHouse::getNotfO() const{
+	return *(notfO);
 }
 
 int WareHouse::getCustomerCounter() const{
@@ -550,27 +596,33 @@ void WareHouse::handleOrders(){
 	if(pendingOrders.size() > 0){
         for(int i=0; i< static_cast<int>(pendingOrders.size()); i++){
             // go over all the collectors and see who is available   <<<============
-            if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING && pendingOrders.at(i)->getCollectorId() == NO_VOLUNTEER){  // assigning a new order to a collector.
+            if(pendingOrders.at(i)->getStatus() == OrderStatus::PENDING){  // assigning a new order to a collector.
                 for(Volunteer* vol : volunteers){
                     if(vol->get_vol_identifier() == "c" && vol->canTakeOrder(*(pendingOrders.at(i)))){
                         pendingOrders.at(i)->setCollectorId(vol->getId());
                         vol->acceptOrder(*(pendingOrders.at(i)));   ///    do a clone to Order and add a clone when giving it to the next place and delete the old
                         pendingOrders.at(i)->setStatus(OrderStatus::COLLECTING);
-                        addOrder(pendingOrders.at(i)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
-                        
+
+						Order* o1;
+						o1 = new Order(*(pendingOrders.at(i))); // using default copy constructor
+                        addOrder(o1); // adding to inprocessorders now because we changed the order's status, tried giving the clone as well
+
                         pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
                         i--;
                         break;
                     } // now gave the new order to a collector if a collector is free
                 }
 
-			}else{ // if  ====>> (pendingOrders.at(i)->getStatus() == OrderStatus::PENDING)
+			}else{ // if  ====>> (pendingOrders.at(i)->getStatus() == OrderStatus::COLLECTING)
                 for(Volunteer* vol : volunteers){
                     if(vol->get_vol_identifier() == "d" && vol->canTakeOrder(*(pendingOrders.at(i)))){
                         pendingOrders.at(i)->setDriverId(vol->getId());
-                        vol->acceptOrder(*(pendingOrders.at(i)));
+                        vol->acceptOrder(*(pendingOrders.at(i)));    //  <<<<=============================================
                         pendingOrders.at(i)->setStatus(OrderStatus::DELIVERING);
-                        addOrder(pendingOrders.at(i)->clone()); // adding to inprocessorders now because we changed the order's status, might need to put Order o* = new Order(pendingOrder) inside<=========, because erase deletes, so it won't delete our order(so we want to use the copy constructor)
+
+						Order* o2;
+						o2 = new Order(*(pendingOrders.at(i))); // using default copy constructor
+                        addOrder(o2); // adding to inprocessorders now because we changed the order's status, tried giving the clone as well
 
                         pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
                         i--;
@@ -601,14 +653,15 @@ void WareHouse::handleVolunteers(){
                 }
 
                 if((volunteers.at(i)->isBusy() == false) && (volunteers.at(i)->getCompletedOrderId()!= NO_ORDER)){  // if the volunteer finished his task
-                    Order* o = new Order(getOrder(volunteers.at(i)->getCompletedOrderId()));  // using default copy constructor, this is the order the volunteer just finished processing
+                    Order* o;
+					o = new Order(getOrder(volunteers.at(i)->getCompletedOrderId()));  // using default copy constructor, this is the order the volunteer just finished processing
                     if(volunteers.at(i)->get_vol_identifier() == "c"){
                         o->setStatus(OrderStatus::PENDING); // from what nir said it should be in pending again because it's waiting for a driver to pick it up
                     }else if(volunteers.at(i)->get_vol_identifier() == "d"){
                         o->setStatus(OrderStatus::COMPLETED);
                     }
-                    addOrder(o->clone()); // adding to pendingorders/completedorders(depends on the status we changed to) now
-					delete o;
+
+                    addOrder(o); // adding to pendingorders/completedorders(depends on the status we changed to) now
 
 					for(int j=0; j< static_cast<int>(inProcessOrders.size()); j++){  // erase copied order from inProcessOrders
                         if(inProcessOrders.at(j)->getId() == o->getId()){
@@ -643,7 +696,11 @@ const vector<Action*>& WareHouse::getActions() const{
 
 
 void WareHouse::addOrder(Order* order){
+
 	if(order->getStatus() == OrderStatus::PENDING){
+		if(order->getCollectorId() != NO_VOLUNTEER){
+			order->setStatus(OrderStatus::COLLECTING);
+		}
 		pendingOrders.push_back(order);
 		if(order->getCollectorId() == NO_VOLUNTEER){ // in case it's a new order
 			getCustomer(order->getCustomerId()).addOrder(ordersCounter);
@@ -700,9 +757,8 @@ Customer& WareHouse::getCustomer(int customerId) const{
 			return *(c);
 		}
 	}
-	return *(new SoldierCustomer(-1, "won't reach this new SoldierCustomer", -1, -1));
-}  // the compiler has a problem if we don't return anything here so we're returning something even though it won't reach here because before we activate this get, we check if a 
-                                                                                                             // customer exists, so it's also good that this Customer won't be created
+	return *(notfC); // returns this if not found
+}
 
 Volunteer& WareHouse::getVolunteer(int volunteerId) const{
 	for(Volunteer* v : volunteers){
@@ -729,9 +785,8 @@ Order& WareHouse::getOrder(int orderId) const{
 			return *(o);
 		}
 	}
-	return *(new Order(-1, -1, -1));
-}  // the compiler has a problem if we don't return anything here so we're returning something even though it won't reach here because before we activate this get, we check if an 
-                                                                                                             // order exists, so it's also good that this Order won't be created
+	return *(notfO); // returns this if not found
+}
 
 
 

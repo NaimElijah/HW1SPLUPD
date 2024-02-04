@@ -118,9 +118,9 @@ string CollectorVolunteer::toString() const{
     
     string boo;
     if(to_string(this->isBusy()) == "0"){
-        boo = "false";
+        boo = "False";
     }else{
-        boo = "true";
+        boo = "True";
     }
     res += "\nisBusy: " + boo;
 
@@ -202,9 +202,9 @@ string LimitedCollectorVolunteer::toString() const{
 
     string boo;
     if(to_string(this->isBusy()) == "0"){
-        boo = "false";
+        boo = "False";
     }else{
-        boo = "true";
+        boo = "True";
     }
     res += "\nisBusy: " + boo;
     
@@ -302,9 +302,9 @@ string DriverVolunteer::toString() const{
 
     string boo;
     if(to_string(this->isBusy()) == "0"){
-        boo = "false";
+        boo = "False";
     }else{
-        boo = "true";
+        boo = "True";
     }
     res += "\nisBusy: " + boo;
     
@@ -382,9 +382,9 @@ string LimitedDriverVolunteer::toString() const{
 
     string boo;
     if(to_string(this->isBusy()) == "0"){
-        boo = "false";
+        boo = "False";
     }else{
-        boo = "true";
+        boo = "True";
     }
     res += "\nisBusy: " + boo;
     

@@ -49,7 +49,10 @@ class WareHouse {
         int getCustomerCounter() const;
         int getVolunteerCounter() const;
         int getOrdersCounter() const;
-        Volunteer& getNotfV() const;
+
+        Volunteer& getNotfV() const;     
+        Customer& getNotfC() const;
+        Order& getNotfO() const;
 
         void setCustomerCounter(int i);
         void setVolunteerCounter(int i);
@@ -73,5 +76,7 @@ class WareHouse {
         int ordersCounter;
 
         Volunteer* notfV;
+        Customer* notfC;   // <<<<<<<<<<<<<<===============================================  the default's if we don't find a certain volunteer/order/customer for not found indication
+        Order* notfO;
 
 };

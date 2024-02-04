@@ -111,9 +111,11 @@ void AddOrder::act(WareHouse& wareHouse){
     if((customerId > wareHouse.getCustomerCounter()) || (wareHouse.getCustomer(customerId).canMakeOrder() == false)){
         error("Cannot place this order");
     }else{
-        Order* o = new Order(wareHouse.getOrdersCounter(), customerId, wareHouse.getCustomer(customerId).getCustomerDistance());
+        Order* o; //  <<<<=============================================
+        o = new Order(wareHouse.getOrdersCounter(), customerId, wareHouse.getCustomer(customerId).getCustomerDistance());
         o->setStatus(OrderStatus::PENDING);
         wareHouse.addOrder(o);
+        // delete o;              //           <<<<<<<<<<<============================================================  testing
         this->complete();
     }
 }
@@ -205,7 +207,7 @@ PrintOrderStatus::PrintOrderStatus(int id): orderId(id){};
 
 
 void PrintOrderStatus::act(WareHouse& wareHouse){
-    if(orderId > (wareHouse.getOrdersCounter()-1)){
+    if(wareHouse.getOrder(orderId).getId() == -1){
         error("Order doesn't exist");
     }else{
         cout << "\n" + wareHouse.getOrder(orderId).toString() + "\n\n";
@@ -251,7 +253,7 @@ string PrintOrderStatus::toString() const{
 PrintCustomerStatus::PrintCustomerStatus(int customerId): customerId(customerId){};
 
 void PrintCustomerStatus::act(WareHouse& wareHouse){
-    if(customerId > (wareHouse.getCustomerCounter()-1)){
+    if(wareHouse.getCustomer(customerId).getName() == "not found"){
         error("Customer doesn't exist");
     }else{
         cout << "\n" + wareHouse.getCustomer(customerId).toString(wareHouse) + "\n\n";
@@ -393,7 +395,11 @@ void Close::act(WareHouse& wareHouse){
     for(Order* o : wareHouse.getPendingOrders()){
         output += "OrderID: " + to_string(o->getId());
         output += ", CustomerID: " + to_string(o->getCustomerId());
-        output += ", OrderStatus: PENDING\n";
+        if(o->getStatus() == OrderStatus::PENDING){
+            output += ", OrderStatus: PENDING\n";
+        }else{
+            output += ", OrderStatus: COLLECTING\n";
+        }
     }
 
     string status_s;
