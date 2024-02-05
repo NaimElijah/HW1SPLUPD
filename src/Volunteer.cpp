@@ -86,7 +86,7 @@ void CollectorVolunteer::setTimeLeft(int time){
 }
 
 bool CollectorVolunteer::decreaseCoolDown(){
-    timeLeft = timeLeft - 1; // what happen if time left is 0 before this line
+    timeLeft = timeLeft - 1;
     if(timeLeft == 0){
         this->setCompletedOrderId(this->getActiveOrderId());   // finished delivering the order so put the activeOrderId in the completedOrderId and put NO_ORDER in activeOrderId
         this->setActiveOrderId(NO_ORDER);  // this also makes the Volunteer not busy

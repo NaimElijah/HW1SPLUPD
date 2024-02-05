@@ -449,10 +449,6 @@ void WareHouse::InputFromFile(const string& configFilePath){            //      
 			strin_s.clear();
         }
 
-		// for(Volunteer* v : volunteers){
-		
-		// }
-
 		///   no need to delete the vectors because they are on the stack as well as their interior variables
     }
 
@@ -471,7 +467,6 @@ void WareHouse::start(){
 	vector<string> input_parts;
 
     while (is_Open()){
-		cout << "enter a command: ";
 		getline(cin, user_input);
 
 		string str;  // each word will be in here when we iterate over the line
@@ -607,6 +602,7 @@ void WareHouse::handleOrders(){
 						o1 = new Order(*(pendingOrders.at(i))); // using default copy constructor
                         addOrder(o1); // adding to inprocessorders now because we changed the order's status, tried giving the clone as well
 
+						delete pendingOrders.at(i);
                         pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
                         i--;
                         break;
@@ -617,13 +613,14 @@ void WareHouse::handleOrders(){
                 for(Volunteer* vol : volunteers){
                     if(vol->get_vol_identifier() == "d" && vol->canTakeOrder(*(pendingOrders.at(i)))){
                         pendingOrders.at(i)->setDriverId(vol->getId());
-                        vol->acceptOrder(*(pendingOrders.at(i)));    //  <<<<=============================================
+                        vol->acceptOrder(*(pendingOrders.at(i)));
                         pendingOrders.at(i)->setStatus(OrderStatus::DELIVERING);
 
 						Order* o2;
 						o2 = new Order(*(pendingOrders.at(i))); // using default copy constructor
                         addOrder(o2); // adding to inprocessorders now because we changed the order's status, tried giving the clone as well
 
+						delete pendingOrders.at(i);
                         pendingOrders.erase(pendingOrders.begin() + i); // remove because the order moved to the inprocessorders vector
                         i--;
                         break;
@@ -656,15 +653,16 @@ void WareHouse::handleVolunteers(){
                     Order* o;
 					o = new Order(getOrder(volunteers.at(i)->getCompletedOrderId()));  // using default copy constructor, this is the order the volunteer just finished processing
                     if(volunteers.at(i)->get_vol_identifier() == "c"){
-                        o->setStatus(OrderStatus::PENDING); // from what nir said it should be in pending again because it's waiting for a driver to pick it up
+                        getOrder(volunteers.at(i)->getCompletedOrderId()).setStatus(OrderStatus::PENDING); // from what nir said it should be in pending again because it's waiting for a driver to pick it up
                     }else if(volunteers.at(i)->get_vol_identifier() == "d"){
-                        o->setStatus(OrderStatus::COMPLETED);
+                        getOrder(volunteers.at(i)->getCompletedOrderId()).setStatus(OrderStatus::COMPLETED);
                     }
 
-                    addOrder(o); // adding to pendingorders/completedorders(depends on the status we changed to) now
+					addOrder(o);
 
 					for(int j=0; j< static_cast<int>(inProcessOrders.size()); j++){  // erase copied order from inProcessOrders
                         if(inProcessOrders.at(j)->getId() == o->getId()){
+							delete inProcessOrders.at(j); // or in the other way in git   <<<<<<=============================
                             inProcessOrders.erase(inProcessOrders.begin() + j); // remove because the order moved to the pending/completedorders vector
 							j--; // not really needed because we are activating break, but still, just because.
 							break; // we can break because there should only be one order with that id, only one order like that, so let's save a bit of time.
@@ -674,7 +672,8 @@ void WareHouse::handleVolunteers(){
                 }
 
                 if(volunteers.at(i)->hasOrdersLeft() == false && volunteers.at(i)->isBusy() == false){   //  check which limited volunteers have finished and reached their max and delete them   <<<============
-                    volunteers.erase(volunteers.begin() + i);  //  delete and organize the vector(vector volunteers)
+                    delete volunteers.at(i);
+					volunteers.erase(volunteers.begin() + i);  //  delete and organize the vector(vector volunteers)
 					i--;
                 }
 
@@ -698,7 +697,7 @@ const vector<Action*>& WareHouse::getActions() const{
 void WareHouse::addOrder(Order* order){
 
 	if(order->getStatus() == OrderStatus::PENDING){
-		if(order->getCollectorId() != NO_VOLUNTEER){
+		if(order->getCollectorId() != NO_VOLUNTEER){ // order finished processing at collector
 			order->setStatus(OrderStatus::COLLECTING);
 		}
 		pendingOrders.push_back(order);
@@ -735,14 +734,14 @@ void WareHouse::addCustomer(Customer* customer){
 vector<Order*> WareHouse::getPendingOrders() const{
 	return pendingOrders;
 }
-vector<Order*> WareHouse::getInProcessOrders() const{  // try and put these as const
+vector<Order*> WareHouse::getInProcessOrders() const{
 	return inProcessOrders;
 }
 vector<Order*> WareHouse::getCompletedOrders() const{
 	return completedOrders;
 }
 
-vector<Volunteer*> WareHouse::getVolunteers() const{  // try and put these as const
+vector<Volunteer*> WareHouse::getVolunteers() const{
 	return volunteers;
 }
 vector<Customer*> WareHouse::getCustomers() const{
@@ -793,7 +792,6 @@ Order& WareHouse::getOrder(int orderId) const{
 void WareHouse::close(){
 	// close the Warehouse
 	isOpen = false;
-	// delete *this;  // using the destructor        no need (explanation below)
 	///   ===========================>>>>>>>>>>>  the destructor will automatically activate when the WareHouse in main goes out of scope, because the WareHouse in main is on the stack
 }
 

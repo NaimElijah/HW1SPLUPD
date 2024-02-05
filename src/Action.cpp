@@ -111,11 +111,10 @@ void AddOrder::act(WareHouse& wareHouse){
     if((customerId > wareHouse.getCustomerCounter()) || (wareHouse.getCustomer(customerId).canMakeOrder() == false)){
         error("Cannot place this order");
     }else{
-        Order* o; //  <<<<=============================================
+        Order* o;
         o = new Order(wareHouse.getOrdersCounter(), customerId, wareHouse.getCustomer(customerId).getCustomerDistance());
         o->setStatus(OrderStatus::PENDING);
         wareHouse.addOrder(o);
-        // delete o;              //           <<<<<<<<<<<============================================================  testing
         this->complete();
     }
 }
@@ -425,7 +424,6 @@ void Close::act(WareHouse& wareHouse){
     cout << output;
 
     wareHouse.close();
-    // delete wareHouse;
     ///   ================>>>>>>>>  the destructor will automatically activate when the WareHouse in main goes out of scope, becasue the WareHouse in main is on the stack
 
     this->complete();

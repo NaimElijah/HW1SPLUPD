@@ -49,7 +49,8 @@
         "list": "cpp",
         "unordered_set": "cpp",
         "any": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "xstring": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

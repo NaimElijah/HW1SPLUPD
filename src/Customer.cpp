@@ -41,7 +41,7 @@ const vector<int>& Customer::getOrdersIds() const{
 }
 
 void Customer::setOrdersIds(vector<int> orders){
-    this->ordersId = orders;            // might need to do a for loop and put each one of orders into ordersId
+    this->ordersId = orders;
 }
 
 int Customer::addOrder(int orderId){
@@ -50,7 +50,7 @@ int Customer::addOrder(int orderId){
     }
     // Check if the orderId is already in the list
     for(int id : ordersId){
-        if (id == orderId) { // maybe we need to check if it's distinct
+        if (id == orderId) { // check if it's distinct
         return -1;
         }
     }
